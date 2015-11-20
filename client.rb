@@ -41,20 +41,22 @@ class Bot
     end
 
     client.on :message do |data|
-      begin
-        puts data
-        # if data["channel"] == channel_id
-        poster = User.new(user_id: data["user"])
-        # only returns the message
-        created_message = Message.new(data["channel"], poster, data["text"]).message_action()
-        send_message(created_message, data["channel"]) if created_message
-        # client.web_client.chat_postMessage({channel: ENV['SLACK_CHANNEL_ID'], text: created_message.message, as_user: true})
-      rescue StandardError => e
-        puts "ERROR ERROR ERROR!"
-        puts e
+      puts data
+      if data["channel"] == default_channel_id
+        begin
+          poster = User.new(user_id: data["user"])
+          unless poster.username == "RubyBot" || poster.username == "SlackBot"
+            # only returns the message
+            created_message = Message.new(data["channel"], poster, data["text"]).message_action()
+            send_message(created_message, data["channel"]) if created_message
+            `say "#{created_message}"`
+          end
+        rescue StandardError => e
+          puts "ERROR ERROR ERROR!"
+          puts e
+        end
       end
     end
-
   end
 
   def send_message(message, channel_id)
@@ -134,7 +136,7 @@ class Message
   end
 
   def cody
-    @message = "cody stop being a slacker. #{get_insult}"
+    @message = "Cody stop being a slacker."
   end
 
   def travis(person, status)
@@ -152,7 +154,7 @@ class User
   attr_accessor :user_id, :username
 
   # later turn this call into a user list call that will find all the user is and names
-  USER_LOOKUP = {"U04MBB34U" => "Quintin", "USLACKBOT" => "SlackBot" }
+  USER_LOOKUP = {"U04MBB34U" => "Quintin", "USLACKBOT" => "SlackBot", "U0F0N9TC1" => "RubyBot" }
 
   def initialize(options = {})
     if options[:user_id]
